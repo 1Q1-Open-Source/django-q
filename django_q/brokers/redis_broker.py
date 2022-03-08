@@ -2,7 +2,15 @@ import redis
 from redis import Redis
 
 from django_q.brokers import Broker
-from django_q.conf import Conf, logger
+from django_q.conf import Conf
+
+
+if Conf.CONFIGURE_DEFAULT_LOGGER:
+    from django_q.conf import logger
+else:
+    import logging
+    logger = logging.getLogger(__name__)
+
 
 try:
     import django_redis

@@ -4,8 +4,15 @@ from typing import Union
 from django.utils import timezone
 
 from django_q.brokers import Broker, get_broker
-from django_q.conf import Conf, logger
+from django_q.conf import Conf
 from django_q.signing import BadSignature, SignedPackage
+
+
+if Conf.CONFIGURE_DEFAULT_LOGGER:
+    from django_q.conf import logger
+else:
+    import logging
+    logger = logging.getLogger(__name__)
 
 
 class Status:

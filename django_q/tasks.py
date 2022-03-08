@@ -9,12 +9,19 @@ from django.utils import timezone
 
 # local
 from django_q.brokers import get_broker
-from django_q.conf import Conf, logger
+from django_q.conf import Conf
 from django_q.humanhash import uuid
 from django_q.models import Schedule, Task
 from django_q.queues import Queue
 from django_q.signals import pre_enqueue
 from django_q.signing import SignedPackage
+
+
+if Conf.CONFIGURE_DEFAULT_LOGGER:
+    from django_q.conf import logger
+else:
+    import logging
+    logger = logging.getLogger(__name__)
 
 
 def async_task(func, *args, **kwargs):

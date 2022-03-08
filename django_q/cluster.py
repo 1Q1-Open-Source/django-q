@@ -36,7 +36,6 @@ from django_q.conf import (
     croniter,
     error_reporter,
     get_ppid,
-    logger,
     psutil,
     resource,
 )
@@ -47,6 +46,12 @@ from django_q.signals import post_execute, pre_execute
 from django_q.signing import BadSignature, SignedPackage
 from django_q.status import Stat, Status
 
+
+if Conf.CONFIGURE_DEFAULT_LOGGER:
+    from django_q.conf import logger
+else:
+    import logging
+    logger = logging.getLogger(__name__)
 
 class Cluster:
     def __init__(self, broker: Broker = None):
