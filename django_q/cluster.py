@@ -424,7 +424,10 @@ def worker(
         timer.value = -1  # Idle
         task_count += 1
         # Get the function from the task
-        logger.info(_(f'{name} processing [{task["name"]}] {task["func"]}'))
+        logger.info(_(f'{name} processing [{task["name"]}]'))
+        if task["func"] is None:
+            logger.info(_(f'{name} cannot process [{task["name"]}] recieved func:{task["func"]} with args:{task["args"]} and kwargs:{task["kwargs"]}'))
+            continue
         f = task["func"]
         # if it's not an instance try to get it from the string
         if not callable(task["func"]):
