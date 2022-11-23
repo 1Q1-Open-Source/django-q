@@ -425,20 +425,17 @@ def worker(
         task_count += 1
         # Get the function from the task
         logger.info(_(f'{name} processing [{task["name"]}]'))
-        if task["func"] is None:
-            logger.info(_(f'{name} cannot process [{task["name"]}] recieved func:{task["func"]} with args:{task["args"]} and kwargs:{task["kwargs"]}'))
-            continue
-        f = task["func"]
-        # if it's not an instance try to get it from the string
-        if not callable(task["func"]):
-            f = pydoc.locate(f)
-        close_old_django_connections()
-        timer_value = task.pop("timeout", timeout)
-        # signal execution
-        pre_execute.send(sender="django_q", func=f, task=task)
-        # execute the payload
-        timer.value = timer_value  # Busy
         try:
+            f = task["func"]
+            # if it's not an instance try to get it from the string
+            if not callable(task["func"]):
+                f = pydoc.locate(f)
+            close_old_django_connections()
+            timer_value = task.pop("timeout", timeout)
+            # signal execution
+            pre_execute.send(sender="django_q", func=f, task=task)
+            # execute the payload
+            timer.value = timer_value  # Busy
             res = f(*task["args"], **task["kwargs"])
             result = (res, True)
         except Exception as e:
