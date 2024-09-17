@@ -4,8 +4,15 @@ from django.db.models.signals import post_save
 from django.dispatch import Signal, receiver
 from django.utils.translation import gettext_lazy as _
 
-from django_q.conf import logger
+from django_q.conf import Conf
 from django_q.models import Task
+
+
+if Conf.CONFIGURE_DEFAULT_LOGGER:
+    from django_q.conf import logger
+else:
+    import logging
+    logger = logging.getLogger(__name__)
 
 
 @receiver(post_save, sender=Task)

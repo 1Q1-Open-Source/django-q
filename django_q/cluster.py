@@ -36,7 +36,6 @@ from django_q.conf import (
     croniter,
     error_reporter,
     get_ppid,
-    logger,
     psutil,
     resource,
 )
@@ -47,6 +46,12 @@ from django_q.signals import post_execute, pre_execute
 from django_q.signing import BadSignature, SignedPackage
 from django_q.status import Stat, Status
 
+
+if Conf.CONFIGURE_DEFAULT_LOGGER:
+    from django_q.conf import logger
+else:
+    import logging
+    logger = logging.getLogger(__name__)
 
 class Cluster:
     def __init__(self, broker: Broker = None):
@@ -420,17 +425,17 @@ def worker(
         task_count += 1
         # Get the function from the task
         logger.info(_(f'{name} processing [{task["name"]}]'))
-        f = task["func"]
-        # if it's not an instance try to get it from the string
-        if not callable(task["func"]):
-            f = pydoc.locate(f)
-        close_old_django_connections()
-        timer_value = task.pop("timeout", timeout)
-        # signal execution
-        pre_execute.send(sender="django_q", func=f, task=task)
-        # execute the payload
-        timer.value = timer_value  # Busy
         try:
+            f = task["func"]
+            # if it's not an instance try to get it from the string
+            if not callable(task["func"]):
+                f = pydoc.locate(f)
+            close_old_django_connections()
+            timer_value = task.pop("timeout", timeout)
+            # signal execution
+            pre_execute.send(sender="django_q", func=f, task=task)
+            # execute the payload
+            timer.value = timer_value  # Busy
             res = f(*task["args"], **task["kwargs"])
             result = (res, True)
         except Exception as e:
